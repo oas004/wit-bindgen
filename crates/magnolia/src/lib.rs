@@ -38,7 +38,7 @@ struct Section {
 
 struct Operation {
     name: String,
-    params: Vec<(String, LeafType)>,
+    params: Vec<(String, LeafType, bool)>,
     result: Option<LeafType>,
 }
 
@@ -87,7 +87,7 @@ impl Magnolia {
         for param in &func.params {
             let ty = leaf_type(resolve, &param.ty)?;
             self.types.insert(ty);
-            params.push((param.name.to_snake_case(), ty));
+            params.push((param.name.to_snake_case(), ty, param.is_out));
         }
 
         let result = func
@@ -293,7 +293,10 @@ fn emit_operation(src: &mut Source, operation: &Operation) {
     let mut parameters = operation
         .params
         .iter()
-        .map(|(name, ty)| format!("obs {name}: {}", ty.magnolia_name()))
+        .map(|(name, ty, is_out)| {
+            let mode = if *is_out { "out" } else { "obs" };
+            format!("{mode} {name}: {}", ty.magnolia_name())
+        })
         .collect::<Vec<_>>();
 
     if let Some(ty) = operation.result {
@@ -301,7 +304,7 @@ fn emit_operation(src: &mut Source, operation: &Operation) {
         while operation
             .params
             .iter()
-            .any(|(parameter, _)| parameter == &result_name)
+            .any(|(parameter, _, _)| parameter == &result_name)
         {
             result_name.push('_');
         }

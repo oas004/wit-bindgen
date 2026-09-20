@@ -65,3 +65,33 @@ fn reports_unsupported_compound_types() {
         "unexpected error: {error:#}"
     );
 }
+
+#[test]
+fn preserves_wit_out_parameter_mode() {
+    const WIT: &str = r#"
+        package learning:magnolia;
+
+        world calculator {
+            export divide: func(
+                dividend: u32,
+                divisor: u32,
+                out remainder: u32,
+            );
+        }
+    "#;
+
+    let mut resolve = Resolve::default();
+    let package = resolve.push_str("calculator.wit", WIT).unwrap();
+    let world = resolve
+        .select_world(&[package], Some("calculator"))
+        .unwrap();
+    let mut files = Files::default();
+    let mut generator = wit_bindgen_magnolia::Opts::default().build();
+
+    generator.generate(&mut resolve, world, &mut files).unwrap();
+
+    let generated = String::from_utf8(files.remove("calculator.mg").unwrap()).unwrap();
+    assert!(generated.contains(
+        "procedure divide(obs dividend: WitU32, obs divisor: WitU32, out remainder: WitU32);"
+    ));
+}

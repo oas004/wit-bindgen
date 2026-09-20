@@ -1,0 +1,9 @@
+package learning:magnolia;
+
+world out-parameter {
+  export divide: func(
+    dividend: u32,
+    divisor: u32,
+    out remainder: u32,
+  );
+}
