@@ -93,6 +93,7 @@ enum Opt {
     },
 
     // doc-comments are present on `wit_bindgen_test::Opts` for clap to use.
+    #[cfg(feature = "test")]
     Test {
         #[clap(flatten)]
         opts: wit_bindgen_test::Opts,
@@ -172,6 +173,7 @@ fn main() -> Result<()> {
         Opt::D { opts, args } => (opts.build(args.out_dir.as_ref()), args),
         #[cfg(feature = "magnolia")]
         Opt::Magnolia { opts, args } => (opts.build(), args),
+        #[cfg(feature = "test")]
         Opt::Test { opts } => return opts.run(std::env::args_os().nth(0).unwrap().as_ref()),
     };
 

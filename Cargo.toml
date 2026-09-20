@@ -51,8 +51,8 @@ wat = "1.259.0"
 wasmparser = "0.259.0"
 wasm-encoder = "0.259.0"
 wasm-metadata = { version = "0.259.0", default-features = false }
-wit-parser = "0.259.0"
-wit-component = "0.259.0"
+wit-parser = { path = "../wasm-tools/crates/wit-parser" }
+wit-component = { path = "../wasm-tools/crates/wit-component" }
 wasm-compose = "0.259.0"
 
 wit-bindgen-core = { path = 'crates/core', version = '0.62.0' }
@@ -98,7 +98,7 @@ wit-bindgen-csharp = { workspace = true, features = ['clap'], optional = true }
 wit-bindgen-go = { workspace = true, features = ['clap'], optional = true }
 wit-bindgen-d = { workspace = true, features = ['clap'], optional = true }
 wit-bindgen-magnolia = { workspace = true, features = ['clap'], optional = true }
-wit-bindgen-test = { workspace = true }
+wit-bindgen-test = { workspace = true, optional = true }
 wit-component = { workspace = true }
 wasm-encoder = { workspace = true }
 env_logger = "0.11.7"
@@ -113,6 +113,7 @@ default = [
   'cpp',
   'moonbit',
   'd',
+  'test',
   'async'
 ]
 c = ['dep:wit-bindgen-c']
@@ -125,4 +126,5 @@ csharp-mono = ['csharp']
 moonbit = ['dep:wit-bindgen-moonbit']
 d = ['dep:wit-bindgen-d']
 magnolia = ['dep:wit-bindgen-magnolia']
+test = ['dep:wit-bindgen-test']
 async = []
