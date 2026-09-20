@@ -1536,6 +1536,7 @@ dependencies = [
  "wit-bindgen-csharp",
  "wit-bindgen-d",
  "wit-bindgen-go",
+ "wit-bindgen-magnolia",
  "wit-bindgen-markdown",
  "wit-bindgen-moonbit",
  "wit-bindgen-rust",
@@ -1611,6 +1612,16 @@ dependencies = [
  "wasm-metadata 0.259.0",
  "wit-bindgen-core",
  "wit-component",
+]
+
+[[package]]
+name = "wit-bindgen-magnolia"
+version = "0.62.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "heck",
+ "wit-bindgen-core",
 ]
 
 [[package]]

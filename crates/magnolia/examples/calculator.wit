@@ -1,0 +1,6 @@
+package learning:magnolia;
+
+world calculator {
+  import add: func(a: s32, b: s32) -> s32;
+  export double: func(value: s32) -> s32;
+}
