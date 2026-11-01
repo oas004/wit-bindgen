@@ -27,6 +27,39 @@ documentation as well.
 This crate is developed as a portion of the [`wit-bindgen` repository] which
 also contains a CLI and generators for other languages.
 
+## Experimental parameter-mode prototype
+
+The `experiment/rust-parameter-modes` branch demonstrates how WIT parameter
+direction can inform Rust binding generation. It uses the local experimental
+`wasm-tools` parser and maps resolved parameter modes into generated Rust APIs:
+
+| WIT parameter | Generated Rust parameter |
+| --- | --- |
+| `in value: T` (or unmarked) | `value: T` using the existing ownership rules |
+| `out value: T` | `value: &mut T` |
+| `inout value: T` | `value: &mut T` |
+
+The [`generate!`] procedural macro reads the WIT at compile time and delegates
+to `wit-bindgen-rust`, where these signatures are produced for both imported
+functions and exported `Guest` traits.
+
+This prototype is intentionally limited to binding generation. The canonical
+component ABI still treats all parameters as ordinary inputs, so mutations
+made through generated `&mut T` parameters are not transported back across a
+component boundary. The generated adapter code only bridges the new signatures
+well enough to compile and demonstrate the language-facing API. It must not be
+treated as runtime output-parameter support.
+
+Run the focused parser-and-macro test from the repository root with:
+
+```console
+cargo test -p wit-bindgen --test local_wasm_tools
+```
+
+The test verifies that `In`, `Out`, and `InOut` survive parsing, that an import
+has the expected Rust function type, and that an exported `Guest` trait accepts
+an implementation with the corresponding mutable-reference parameters.
+
 [`generate!`]: https://docs.rs/wit-bindgen/latest/wit_bindgen/macro.generate.html
 [WIT]: https://component-model.bytecodealliance.org/design/wit.html
 [world]: https://component-model.bytecodealliance.org/design/worlds.html

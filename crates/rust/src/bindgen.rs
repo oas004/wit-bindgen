@@ -969,6 +969,16 @@ impl Bindgen for FunctionBindgen<'_, '_> {
                     self.src.push_str(&decl);
                 }
                 self.push_str(&prev_src);
+
+                let mut interface_operands = operands.clone();
+                for (i, (operand, param)) in operands.iter().zip(func.params.iter()).enumerate() {
+                    if param.mode.produces_output() {
+                        let name = format!("param{i}");
+                        uwriteln!(self.src, "let mut {name} = {operand};");
+                        interface_operands[i] = format!("&mut {name}");
+                    }
+                }
+
                 let constructor_type = match &func.kind {
                     FunctionKind::Freestanding
                     | FunctionKind::AsyncFreestanding
@@ -1013,7 +1023,7 @@ impl Bindgen for FunctionBindgen<'_, '_> {
                     }
                 };
                 self.push_str("(");
-                for (i, operand) in operands.iter().enumerate() {
+                for (i, operand) in interface_operands.iter().enumerate() {
                     if i > 0 {
                         self.push_str(", ");
                     }

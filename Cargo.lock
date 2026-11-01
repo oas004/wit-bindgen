@@ -1494,6 +1494,7 @@ dependencies = [
  "rustc-std-workspace-alloc",
  "rustc-std-workspace-core",
  "wit-bindgen-rust-macro",
+ "wit-parser",
 ]
 
 [[package]]
