@@ -1623,7 +1623,10 @@ unsafe fn call_import(&mut self, _params: Self::ParamsLower, _results: *mut u8) 
         for (
             i,
             Param {
-                name, ty: param, ..
+                name,
+                ty: param,
+                mode: param_mode,
+                ..
             },
         ) in func.params.iter().enumerate()
         {
@@ -1641,6 +1644,11 @@ unsafe fn call_import(&mut self, _params: Self::ParamsLower, _results: *mut u8) 
             self.push_str(&name);
             self.push_str(": ");
 
+            let produces_output = param_mode.produces_output();
+            if produces_output {
+                self.push_str("&mut ");
+            }
+
             // Select the "style" of mode that the parameter's type will be
             // rendered as. Owned parameters are always owned, that's the easy
             // case. Otherwise it means that we're rendering the arguments to an
@@ -1655,7 +1663,7 @@ unsafe fn call_import(&mut self, _params: Self::ParamsLower, _results: *mut u8) 
             // In the `Borrowing` mode however a different tradeoff is made. The
             // types are generated differently meaning that a borrowed version
             // is used.
-            let style = if params_owned {
+            let style = if params_owned || produces_output {
                 TypeOwnershipStyle::Owned
             } else {
                 match self.r#gen.opts.ownership {
@@ -1688,7 +1696,14 @@ unsafe fn call_import(&mut self, _params: Self::ParamsLower, _results: *mut u8) 
             // access to the parameter is done indirectly which pretends, at
             // least internally, that the argument was borrowed. The original
             // motivation for this was #817.
-            if mode.style == style {
+            if produces_output {
+                // Parameter modes are not part of the canonical ABI yet. For
+                // now lower the value behind the mutable reference as the
+                // ordinary ABI input. This connects the mode-aware Rust API to
+                // generated bindings without claiming that mutations are
+                // transported back across the component boundary.
+                params.push(format!("&*{name}"));
+            } else if mode.style == style {
                 params.push(name);
             } else {
                 assert!(style != TypeOwnershipStyle::Owned);
